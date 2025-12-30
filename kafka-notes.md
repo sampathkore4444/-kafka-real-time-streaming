@@ -387,6 +387,8 @@ CREATE TABLE merchant_agg (
     CONSTRAINT pk_merchant_agg PRIMARY KEY (window_start, merchant_id, partition_id)
 );
 
+ALTER TABLE merchant_agg ADD is_late CHAR(1);
+
 CREATE TABLE kafka_offsets (
     topic         VARCHAR2(100),
     partition_id  NUMBER,

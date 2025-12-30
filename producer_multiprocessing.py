@@ -10,7 +10,7 @@ import json
 # Kafka configuration
 KAFKA_BROKER = "localhost:9092"
 TOPIC_NAME = "my-first-topic-test"
-TOTAL_MESSAGES = 10000000
+TOTAL_MESSAGES = 1000
 NUM_PROCESSES = min(8, os.cpu_count())  # cap processes
 
 MERCHANTS = ["M001", "M002", "M003", "M004", "M005"]
