@@ -250,3 +250,123 @@ docker-compose ps
 - Messages persist until retention period (default 7 days)
 
 This cheatsheet covers 95% of daily Kafka operations in Docker! 🚀
+
+
+
+
+
+
+
+
+
+
+
+
+
+Good use case 👍
+To speed this up, we’ll **parallelize message production** using **multiprocessing**, where each process sends a chunk of messages.
+
+### Key ideas
+
+* KafkaProducer **is NOT process-safe**, so **each process must create its own producer**
+* Split 10,000 messages across multiple processes
+* Batch sends + fewer flushes = much faster
+* This works well on multi-core machines
+
+---
+
+## 🚀 Multiprocessing Kafka Producer (Fast)
+
+```python
+from kafka import KafkaProducer
+import multiprocessing as mp
+import os
+import time
+
+# Kafka configuration
+KAFKA_BROKER = "localhost:9092"
+TOPIC_NAME = "my-first-topic"
+TOTAL_MESSAGES = 10000
+NUM_PROCESSES = min(8, os.cpu_count())  # cap processes
+
+def produce_messages(start, end, process_id):
+    producer = KafkaProducer(
+        bootstrap_servers=KAFKA_BROKER,
+        value_serializer=lambda v: v.encode("utf-8"),
+        linger_ms=5,              # batch for a few ms
+        batch_size=64 * 1024,     # 64KB batch
+        acks=1                    # faster than acks=all
+    )
+
+    for i in range(start, end):
+        producer.send(TOPIC_NAME, value=f"Message {i}")
+
+    producer.flush()
+    producer.close()
+    print(f"Process {process_id} sent messages {start} to {end-1}")
+
+if __name__ == "__main__":
+    start_time = time.time()
+
+    chunk_size = TOTAL_MESSAGES // NUM_PROCESSES
+    processes = []
+
+    for i in range(NUM_PROCESSES):
+        start = i * chunk_size + 1
+        end = start + chunk_size
+
+        if i == NUM_PROCESSES - 1:
+            end = TOTAL_MESSAGES + 1  # last process sends remainder
+
+        p = mp.Process(
+            target=produce_messages,
+            args=(start, end, i)
+        )
+        p.start()
+        processes.append(p)
+
+    for p in processes:
+        p.join()
+
+    print(f"\n✅ Sent {TOTAL_MESSAGES} messages in "
+          f"{round(time.time() - start_time, 2)} seconds")
+```
+
+---
+
+## ⚡ Why this is much faster
+
+| Optimization           | Effect                           |
+| ---------------------- | -------------------------------- |
+| Multiprocessing        | Uses all CPU cores               |
+| Producer per process   | Avoids thread/process contention |
+| `linger_ms` + batching | Fewer network calls              |
+| Reduced `acks`         | Lower latency                    |
+
+---
+
+## 🧪 Expected performance
+
+On a local Kafka broker:
+
+* **Single process**: ~1–2 seconds for 10k msgs
+* **Multiprocessing (6–8 cores)**: **< 0.5 sec**
+
+---
+
+## 🧠 Pro tips for even more speed
+
+* Increase `batch_size` to `128KB`
+* Increase `linger_ms` to `10–20ms`
+* Run producer **on same host/network** as Kafka
+* Avoid per-message logging
+
+---
+
+If you want:
+
+* ✅ **Async producer with futures**
+* ✅ **Threading vs multiprocessing comparison**
+* ✅ **High-throughput benchmark (100K+ msgs/sec)**
+
+Just tell me 👌
