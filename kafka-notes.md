@@ -370,3 +370,50 @@ If you want:
 * ✅ **High-throughput benchmark (100K+ msgs/sec)**
 
 Just tell me 👌
+
+
+
+
+
+Oracle database tables:
+
+CREATE TABLE merchant_agg (
+    window_start    TIMESTAMP,
+    window_end      TIMESTAMP,
+    partition_id    NUMBER,
+    merchant_id     VARCHAR2(50),
+    txn_count       NUMBER,
+    total_amount    NUMBER(18,2),
+    CONSTRAINT pk_merchant_agg PRIMARY KEY (window_start, merchant_id, partition_id)
+);
+
+CREATE TABLE kafka_offsets (
+    topic         VARCHAR2(100),
+    partition_id  NUMBER,
+    offset        NUMBER,
+    updated_at    TIMESTAMP,
+    CONSTRAINT pk_kafka_offsets PRIMARY KEY (topic, partition_id)
+);
+
+
+-- Optional: late events audit
+CREATE TABLE late_events (
+    event_time    TIMESTAMP,
+    partition_id  NUMBER,
+    payload       CLOB,
+    inserted_at   TIMESTAMP DEFAULT SYSTIMESTAMP
+);
+
+select * from merchant_agg order by window_start desc
+select * from kafka_offsets
+select * from late_events
+delete from merchant_agg
+
+
+  
+select merchant_id,
+       sum(txn_count) no_of_txns,
+       sum(total_amount) aggregated_amount
+  from merchant_agg
+ group by merchant_id
+ order by aggregated_amount desc
