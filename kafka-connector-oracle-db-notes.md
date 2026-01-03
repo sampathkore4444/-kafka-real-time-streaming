@@ -186,3 +186,13 @@ name                      config
 ----                      ------
 oracle-cdc-bank-connector @{connector.class=io.debezium.connector.oracle.OracleConnector; tasks.max=1; database.hostname=host.docker.internal; database.port=... 
 
+
+//sample script for insertions
+
+begin
+
+for g in 101..110 loop
+  INSERT INTO BANK.TRANSACTIONS (ACCOUNT_ID, AMOUNT, TRANSACTION_TYPE, DESCRIPTION)
+  VALUES (100 || g, -150.00, 'WITHDRAWAL', 'ATM withdrawal');
+  COMMIT;
+end loop;  
