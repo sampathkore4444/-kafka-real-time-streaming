@@ -1,0 +1,50 @@
+{
+    "name": "oracle-cdc-bank-connector",
+     "config": {
+        "connector.class": "io.debezium.connector.oracle.OracleConnector",
+        "tasks.max": "1",
+        
+        "database.hostname": "host.docker.internal",
+        "database.port": "1521",
+        "database.user": "system",
+        "database.password": "LOMA@1234",
+        "database.dbname": "XE",
+        "database.pdb.name": "XEPDB1",
+        
+        "database.server.name": "oracle_bank",
+        "topic.prefix": "cdc.bank",
+        
+        "table.include.list": "BANK.TRANSACTIONS",
+        
+        "snapshot.mode": "initial",
+        "snapshot.locking.mode": "shared",
+        
+        "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+        "schema.history.internal.kafka.topic": "schema-history.bank",
+        
+        "log.mining.strategy": "online_catalog",
+        "log.mining.continuous.mine": "false",
+        "log.mining.buffer.type": "memory",
+        
+
+        "decimal.handling.mode": "string",
+        "time.precision.mode": "adaptive",
+        "tombstones.on.delete": "true",
+        
+        "database.connection.adapter": "logminer",
+        "database.oracle.version": "21",
+        
+        "database.connection.timeout.ms": "30000",
+        "database.initial.retry.sleep.time.ms": "1000",
+        "database.max.retry.sleep.time.ms": "3000",
+        "database.max.attempts.for.recovery": "10",
+        
+        "poll.interval.ms": "1000",
+        "max.batch.size": "2048",
+        "max.queue.size": "8192",
+        
+        "errors.log.enable": "true",
+        "errors.retry.delay.max.ms": "60000"
+     }
+
+}
