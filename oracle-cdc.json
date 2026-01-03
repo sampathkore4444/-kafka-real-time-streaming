@@ -6,8 +6,8 @@
         
         "database.hostname": "host.docker.internal",
         "database.port": "1521",
-        "database.user": "system",
-        "database.password": "LOMA@1234",
+        "database.user": "c##debezium",
+        "database.password": "dbz",
         "database.dbname": "XE",
         "database.pdb.name": "XEPDB1",
         
