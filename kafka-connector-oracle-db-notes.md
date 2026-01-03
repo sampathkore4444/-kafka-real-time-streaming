@@ -187,7 +187,9 @@ name                      config
 oracle-cdc-bank-connector @{connector.class=io.debezium.connector.oracle.OracleConnector; tasks.max=1; database.hostname=host.docker.internal; database.port=... 
 
 
-//sample script for insertions
+//sample script for insertions (you need to execute this in XEPDB1)
+
+ALTER SESSION SET CONTAINER = XEPDB1;
 
 begin
 
